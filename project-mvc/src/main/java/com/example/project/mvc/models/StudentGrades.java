@@ -37,17 +37,11 @@ public class StudentGrades {
     }
 
     public Boolean isGradeGreater(double gradeOne, double gradeTwo) {
-        if (gradeOne > gradeTwo) {
-            return true;
-        }
-        return false;
+        return gradeOne > gradeTwo;
     }
 
     public Object checkNull(Object obj) {
-        if ( obj != null ) {
-            return obj;
-        }
-        return null;
+        return obj;
     }
 
     public List<Grade> getMathGradesResult() {
