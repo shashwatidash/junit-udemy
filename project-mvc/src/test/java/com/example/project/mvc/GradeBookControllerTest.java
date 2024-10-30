@@ -7,6 +7,7 @@ import com.example.project.mvc.service.StudentAndGradeService;
 import org.junit.jupiter.api.*;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -49,6 +50,13 @@ public class GradeBookControllerTest {
     @Autowired
     private StudentDao studentDao;
 
+    @Value("${sql.script.create.student}")
+    private String sqlAddStudent;
+
+    @Value("${sql.script.delete.student}")
+    private String sqlDeleteStudent;
+
+
     @BeforeAll
     public static void setUp() {
         request = new MockHttpServletRequest();
@@ -59,8 +67,7 @@ public class GradeBookControllerTest {
 
     @BeforeEach
     public void beforeEach() {
-        jdbc.execute("INSERT INTO student (id, firstname, lastname, email_address) "
-                + "values (1, 'Eric', 'Roby', 'eric.roby@udemy.com')");
+        jdbc.execute(sqlAddStudent);
     }
 
     @Test
@@ -107,9 +114,9 @@ public class GradeBookControllerTest {
 
     @Test
     public void deleteStudentHttpRequest() throws Exception {
-        assertTrue(studentDao.findById(1).isPresent());
+        assertTrue(studentDao.findById(2).isPresent());
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders
-                .get("/delete/student/{id}", 1))
+                .get("/delete/student/{id}", 2))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -134,6 +141,6 @@ public class GradeBookControllerTest {
 
     @AfterEach
     public void setUpAfterTransaction() {
-        jdbc.execute("DELETE FROM student");
+        jdbc.execute(sqlDeleteStudent);
     }
 }

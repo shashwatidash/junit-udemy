@@ -9,9 +9,10 @@ public class GradeBookCollegeStudent extends CollegeStudent {
         super(firstname, lastname, emailAddress);
     }
 
-    private GradeBookCollegeStudent(String firstname, String lastname, String emailAddress, StudentGrades studentGrades) {
+    public GradeBookCollegeStudent(int id, String firstname, String lastname, String emailAddress, StudentGrades studentGrades) {
         super(firstname, lastname, emailAddress);
         this.studentGrades = studentGrades;
+        this.id = id;
     }
 
     @Override

@@ -1,9 +1,6 @@
 package com.example.project.mvc;
 
-import com.example.project.mvc.models.CollegeStudent;
-import com.example.project.mvc.models.HistoryGrade;
-import com.example.project.mvc.models.MathGrade;
-import com.example.project.mvc.models.ScienceGrade;
+import com.example.project.mvc.models.*;
 import com.example.project.mvc.repository.HistoryGradesDao;
 import com.example.project.mvc.repository.MathGradesDao;
 import com.example.project.mvc.repository.ScienceGradesDao;
@@ -13,6 +10,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.TestPropertySource;
@@ -46,13 +44,36 @@ class StudentAndGradeServiceTest {
 	@Autowired
 	private JdbcTemplate jdbc;
 
+	@Value("${sql.script.create.student}")
+	private String sqlAddStudent;
+
+	@Value("${sql.script.delete.student}")
+	private String sqlDeleteStudent;
+
+	@Value("${sql.script.create.math.grade}")
+	private String sqlAddMathGrade;
+
+	@Value("${sql.script.delete.math.grade}")
+	private String sqlDeleteMathGrade;
+
+	@Value("${sql.script.create.science.grade}")
+	private String sqlAddScienceGrade;
+
+	@Value("${sql.script.delete.science.grade}")
+	private String sqlDeleteScienceGrade;
+
+	@Value("${sql.script.create.history.grade}")
+	private String sqlAddHistoryGrade;
+
+	@Value("${sql.script.delete.history.grade}")
+	private String sqlDeleteHistoryGrade;
+
 	@BeforeEach
 	public void setUpDatabase() {
-		jdbc.execute("INSERT INTO student (id, firstname, lastname, email_address) "
-			+ "values (2, 'Eric', 'Roby', 'eric.roby@udemy.com')");
-		jdbc.execute("INSERT INTO math_grade (id, student_id, grade) values (2, 2, 100.00)");
-		jdbc.execute("INSERT INTO science_grade (id, student_id, grade) values (2, 2, 100.00)");
-		jdbc.execute("INSERT INTO history_grade (id, student_id, grade) values (2, 2, 100.00)");
+		jdbc.execute(sqlAddStudent);
+		jdbc.execute(sqlAddMathGrade);
+		jdbc.execute(sqlAddScienceGrade);
+		jdbc.execute(sqlAddHistoryGrade);
 	}
 
 	@Test
@@ -147,11 +168,31 @@ class StudentAndGradeServiceTest {
 				"No student should have literature class");
 	}
 
+	@Test
+	public void studentInformation() {
+		GradeBookCollegeStudent gradeBookCollegeStudent = studentAndGradeService.studentInformation(2);
+		assertNotNull(gradeBookCollegeStudent);
+		assertEquals(2, gradeBookCollegeStudent.getId());
+		assertEquals("Eric", gradeBookCollegeStudent.getFirstname());
+		assertEquals("Roby", gradeBookCollegeStudent.getLastname());
+		assertEquals("eric.roby@udemy.com", gradeBookCollegeStudent.getEmailAddress());
+
+		assertEquals(1, gradeBookCollegeStudent.getStudentGrades().getMathGradesResult().size());
+        assertEquals(1, gradeBookCollegeStudent.getStudentGrades().getScienceGradesResult().size());
+        assertEquals(1, gradeBookCollegeStudent.getStudentGrades().getHistoryGradesResult().size());
+	}
+
+	@Test
+	public void studentInformationServiceReturnNull() {
+		GradeBookCollegeStudent gradeBookCollegeStudent = studentAndGradeService.studentInformation(0);
+		assertNull(gradeBookCollegeStudent);
+	}
+
 	@AfterEach
 	public void setUpAfterTransaction() {
-		jdbc.execute("DELETE FROM student");
-		jdbc.execute("DELETE FROM math_grade");
-		jdbc.execute("DELETE FROM science_grade");
-		jdbc.execute("DELETE FROM history_grade");
+		jdbc.execute(sqlDeleteStudent);
+		jdbc.execute(sqlDeleteMathGrade);
+		jdbc.execute(sqlDeleteScienceGrade);
+		jdbc.execute(sqlDeleteHistoryGrade);
 	}
 }
