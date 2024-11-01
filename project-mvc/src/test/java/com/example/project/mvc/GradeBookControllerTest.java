@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@TestPropertySource("/application.properties")
+@TestPropertySource("/application-test.properties")
 public class GradeBookControllerTest {
 
    private static MockHttpServletRequest request;
