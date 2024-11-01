@@ -1,7 +1,9 @@
 package com.example.project.mvc;
 
 import com.example.project.mvc.models.CollegeStudent;
+import com.example.project.mvc.models.HistoryGrade;
 import com.example.project.mvc.models.MathGrade;
+import com.example.project.mvc.models.ScienceGrade;
 import com.example.project.mvc.repository.HistoryGradesDao;
 import com.example.project.mvc.repository.MathGradesDao;
 import com.example.project.mvc.repository.ScienceGradesDao;
@@ -111,10 +113,24 @@ public class GradeBookControllerTest {
 
     @BeforeEach
     public void setUpDatabase() {
-        jdbc.execute(sqlAddStudent);
-        jdbc.execute(sqlAddMathGrade);
-        jdbc.execute(sqlAddScienceGrade);
-        jdbc.execute(sqlAddHistoryGrade);
+        CollegeStudent student = new CollegeStudent("Eric", "Roby", "eric.roby@udemy.com");
+        student.setId(1);
+        studentDao.save(student);
+
+        MathGrade mathGrade = new MathGrade(100.00);
+        mathGrade.setStudentId(1);
+        mathGrade.setId(1);
+        mathGradesDao.save(mathGrade);
+
+        ScienceGrade scienceGrade = new ScienceGrade(100.00);
+        scienceGrade.setStudentId(1);
+        scienceGrade.setId(1);
+        scienceGradesDao.save(scienceGrade);
+
+        HistoryGrade historyGrade = new HistoryGrade(100.00);
+        historyGrade.setStudentId(1);
+        historyGrade.setId(1);
+        historyGradesDao.save(historyGrade);
     }
 
     @Test
@@ -154,13 +170,13 @@ public class GradeBookControllerTest {
 
     @Test
     public void deleteStudentHttpRequest() throws Exception {
-        assertTrue(studentDao.findById(2).isPresent());
-        mockMvc.perform(MockMvcRequestBuilders.delete("/student/{id}", 2))
+        assertTrue(studentDao.findById(1).isPresent());
+        mockMvc.perform(MockMvcRequestBuilders.delete("/student/{id}", 1))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(APPLICATION_JSON_UTF8))
                 .andExpect(jsonPath("$", hasSize(0)));
 
-        assertFalse(studentDao.findById(2).isPresent());
+        assertFalse(studentDao.findById(1).isPresent());
     }
 
     @Test
@@ -174,12 +190,12 @@ public class GradeBookControllerTest {
 
     @Test
     public void studentInformationHttpRequest() throws Exception {
-        Optional<CollegeStudent> student = studentDao.findById(2);
+        Optional<CollegeStudent> student = studentDao.findById(1);
         assertTrue(student.isPresent());
-        mockMvc.perform(MockMvcRequestBuilders.get("/studentInformation/{id}", 2))
+        mockMvc.perform(MockMvcRequestBuilders.get("/studentInformation/{id}", 1))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(APPLICATION_JSON_UTF8))
-                .andExpect(jsonPath("$.id", is(2)))
+                .andExpect(jsonPath("$.id", is(1)))
                 .andExpect(jsonPath("$.firstname", is("Eric")))
                 .andExpect(jsonPath("$.lastname", is("Roby")))
                 .andExpect(jsonPath("$.emailAddress", is("eric.roby@udemy.com")));
@@ -201,10 +217,10 @@ public class GradeBookControllerTest {
                         .contentType(APPLICATION_JSON_UTF8)
                         .param("grade", "85.00")
                         .param("gradeType", "math")
-                        .param("studentId", "2"))
+                        .param("studentId", "1"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(APPLICATION_JSON_UTF8))
-                .andExpect(jsonPath("$.id", is(2)))
+                .andExpect(jsonPath("$.id", is(1)))
                 .andExpect(jsonPath("$.firstname", is("Eric")))
                 .andExpect(jsonPath("$.lastname", is("Roby")))
                 .andExpect(jsonPath("$.emailAddress", is("eric.roby@udemy.com")))
@@ -237,12 +253,12 @@ public class GradeBookControllerTest {
 
     @Test
     public void deleteGradeHttpRequest() throws Exception {
-        Optional<MathGrade> mathGrade = mathGradesDao.findById(2);
+        Optional<MathGrade> mathGrade = mathGradesDao.findById(1);
         assertTrue(mathGrade.isPresent());
-        mockMvc.perform(MockMvcRequestBuilders.delete("/grades/{id}/{gradeType}", 2, "math"))
+        mockMvc.perform(MockMvcRequestBuilders.delete("/grades/{id}/{gradeType}", 1, "math"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(APPLICATION_JSON_UTF8))
-                .andExpect(jsonPath("$.id", is(2)))
+                .andExpect(jsonPath("$.id", is(1)))
                 .andExpect(jsonPath("$.firstname", is("Eric")))
                 .andExpect(jsonPath("$.lastname", is("Roby")))
                 .andExpect(jsonPath("$.emailAddress", is("eric.roby@udemy.com")))
@@ -260,7 +276,7 @@ public class GradeBookControllerTest {
 
     @Test
     public void deleteGradeHttpRequestInvalidGradeType() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.delete("/grades/{id}/{gradeType}", 2, "literature"))
+        mockMvc.perform(MockMvcRequestBuilders.delete("/grades/{id}/{gradeType}", 1, "literature"))
                 .andExpect(content().contentType(APPLICATION_JSON_UTF8))
                 .andExpect(status().is4xxClientError())
                 .andExpect(jsonPath("$.status", is(400)))
@@ -270,8 +286,12 @@ public class GradeBookControllerTest {
     @AfterEach
     public void setUpAfterTransaction() {
         jdbc.execute(sqlDeleteStudent);
+        jdbc.execute("ALTER TABLE student ALTER COLUMN ID RESTART WITH 1");
         jdbc.execute(sqlDeleteMathGrade);
+        jdbc.execute("ALTER TABLE math_grade ALTER COLUMN ID RESTART WITH 1");
         jdbc.execute(sqlDeleteScienceGrade);
+        jdbc.execute("ALTER TABLE science_grade ALTER COLUMN ID RESTART WITH 1");
         jdbc.execute(sqlDeleteHistoryGrade);
+        jdbc.execute("ALTER TABLE history_grade ALTER COLUMN ID RESTART WITH 1");
     }
 }
