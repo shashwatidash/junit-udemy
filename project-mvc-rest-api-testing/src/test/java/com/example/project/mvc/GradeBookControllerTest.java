@@ -1,6 +1,7 @@
 package com.example.project.mvc;
 
 import com.example.project.mvc.models.CollegeStudent;
+import com.example.project.mvc.models.MathGrade;
 import com.example.project.mvc.repository.HistoryGradesDao;
 import com.example.project.mvc.repository.MathGradesDao;
 import com.example.project.mvc.repository.ScienceGradesDao;
@@ -233,7 +234,39 @@ public class GradeBookControllerTest {
                 .andExpect(jsonPath("$.status", is(400)))
                 .andExpect(jsonPath("$.message", is("Student Or Grade was not found -")));
     }
-    
+
+    @Test
+    public void deleteGradeHttpRequest() throws Exception {
+        Optional<MathGrade> mathGrade = mathGradesDao.findById(2);
+        assertTrue(mathGrade.isPresent());
+        mockMvc.perform(MockMvcRequestBuilders.delete("/grades/{id}/{gradeType}", 2, "math"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(APPLICATION_JSON_UTF8))
+                .andExpect(jsonPath("$.id", is(2)))
+                .andExpect(jsonPath("$.firstname", is("Eric")))
+                .andExpect(jsonPath("$.lastname", is("Roby")))
+                .andExpect(jsonPath("$.emailAddress", is("eric.roby@udemy.com")))
+                .andExpect(jsonPath("$.studentGrades.mathGradesResult", hasSize(0)));
+    }
+
+    @Test
+    public void deleteGradeHttpRequestInvalidStudent() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.delete("/grades/{id}/{gradeType}", 0, "history"))
+                .andExpect(content().contentType(APPLICATION_JSON_UTF8))
+                .andExpect(status().is4xxClientError())
+                .andExpect(jsonPath("$.status", is(400)))
+                .andExpect(jsonPath("$.message", is("Student Or Grade was not found -")));
+    }
+
+    @Test
+    public void deleteGradeHttpRequestInvalidGradeType() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.delete("/grades/{id}/{gradeType}", 2, "literature"))
+                .andExpect(content().contentType(APPLICATION_JSON_UTF8))
+                .andExpect(status().is4xxClientError())
+                .andExpect(jsonPath("$.status", is(400)))
+                .andExpect(jsonPath("$.message", is("Student Or Grade was not found -")));
+    }
+
     @AfterEach
     public void setUpAfterTransaction() {
         jdbc.execute(sqlDeleteStudent);
