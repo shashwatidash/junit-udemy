@@ -48,6 +48,9 @@ public class GradeBookControllerTest {
     private StudentAndGradeService studentCreateServiceMock;
 
     @Autowired
+    private StudentAndGradeService studentAndGradeService;
+
+    @Autowired
     private StudentDao studentDao;
 
     @Value("${sql.script.create.student}")
@@ -56,6 +59,11 @@ public class GradeBookControllerTest {
     @Value("${sql.script.delete.student}")
     private String sqlDeleteStudent;
 
+    @Value("${sql.script.create.math.grade}")
+    private String sqlAddMathGrade;
+
+    @Value("${sql.script.delete.math.grade}")
+    private String sqlDeleteMathGrade;
 
     @BeforeAll
     public static void setUp() {
@@ -68,6 +76,7 @@ public class GradeBookControllerTest {
     @BeforeEach
     public void beforeEach() {
         jdbc.execute(sqlAddStudent);
+        jdbc.execute(sqlAddMathGrade);
     }
 
     @Test
@@ -165,10 +174,28 @@ public class GradeBookControllerTest {
         ModelAndViewAssert.assertViewName(mav, "error");
     }
 
+    @Test
+    public void  createValidGradeHttpRequest() throws Exception {
+        assertTrue(studentDao.findById(2).isPresent());
+        GradeBookCollegeStudent student = studentAndGradeService.studentInformation(2);
+        assertEquals(1, student.getStudentGrades().getMathGradesResult().size());
 
+        MvcResult mvcResult = this.mockMvc.perform(post("/grades")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("grade", "85.0")
+                        .param("gradeType", "math")
+                        .param("studentId", "2"))
+                .andExpect(status().isOk()).andReturn();
+        ModelAndView mav = mvcResult.getModelAndView();
+        assertNotNull(mav);
+        ModelAndViewAssert.assertViewName(mav, "studentInformation");
+        student = studentAndGradeService.studentInformation(2);
+        assertEquals(2, student.getStudentGrades().getMathGradesResult().size());
+    }
 
     @AfterEach
     public void setUpAfterTransaction() {
         jdbc.execute(sqlDeleteStudent);
+        jdbc.execute(sqlDeleteMathGrade);
     }
 }

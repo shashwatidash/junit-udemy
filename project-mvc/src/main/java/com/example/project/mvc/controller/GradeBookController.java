@@ -49,28 +49,18 @@ public class GradeBookController {
         if (studentAndGradeService.checkIfStudentIsNull(id)) {
             return "error";
         }
-        GradeBookCollegeStudent student = studentAndGradeService.studentInformation(id);
-        model.addAttribute("student", student);
-        if (!student.getStudentGrades().getMathGradesResult().isEmpty()) {
-            model.addAttribute("mathAverage", student.getStudentGrades()
-                    .findGradePointAverage(student.getStudentGrades().getMathGradesResult()));
-        } else {
-            model.addAttribute("mathAverage", "N/A");
-        }
+        studentAndGradeService.configureStudentInformationModel(id, model);
+        return "studentInformation";
+    }
 
-        if (!student.getStudentGrades().getScienceGradesResult().isEmpty()) {
-            model.addAttribute("scienceAverage", student.getStudentGrades()
-                    .findGradePointAverage(student.getStudentGrades().getScienceGradesResult()));
-        } else {
-            model.addAttribute("scienceAverage", "N/A");
+    @PostMapping("/grades")
+    public String createGrade(@RequestParam("grade") double grade, @RequestParam("gradeType") String gradeType,
+                              @RequestParam("studentId") int studentId, Model model) {
+        boolean success = studentAndGradeService.createGrade(grade, studentId, gradeType);
+        if (!success) {
+            return "error";
         }
-
-        if (!student.getStudentGrades().getHistoryGradesResult().isEmpty()) {
-            model.addAttribute("historyAverage", student.getStudentGrades()
-                    .findGradePointAverage(student.getStudentGrades().getHistoryGradesResult()));
-        } else {
-            model.addAttribute("historyAverage", "N/A");
-        }
+        studentAndGradeService.configureStudentInformationModel(studentId, model);
         return "studentInformation";
     }
 }
