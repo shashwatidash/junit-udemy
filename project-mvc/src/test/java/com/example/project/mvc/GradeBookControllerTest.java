@@ -193,6 +193,32 @@ public class GradeBookControllerTest {
         assertEquals(2, student.getStudentGrades().getMathGradesResult().size());
     }
 
+    @Test
+    public void createGradeHttpRequestInvalidStudent() throws Exception {
+        MvcResult mvcResult = this.mockMvc.perform(post("/grades")
+                            .contentType(MediaType.APPLICATION_JSON)
+                        .param("grade", "85.0")
+                        .param("gradeType", "math")
+                        .param("studentId", "0"))
+                .andExpect(status().isOk()).andReturn();
+        ModelAndView mav = mvcResult.getModelAndView();
+        assertNotNull(mav);
+        ModelAndViewAssert.assertViewName(mav, "error");
+    }
+
+    @Test
+    public void createGradeHttpRequestInvalidGradeType() throws Exception {
+        MvcResult mvcResult = this.mockMvc.perform(post("/grades")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("grade", "85.0")
+                        .param("gradeType", "literature")
+                        .param("studentId", "2"))
+                .andExpect(status().isOk()).andReturn();
+        ModelAndView mav = mvcResult.getModelAndView();
+        assertNotNull(mav);
+        ModelAndViewAssert.assertViewName(mav, "error");
+    }
+
     @AfterEach
     public void setUpAfterTransaction() {
         jdbc.execute(sqlDeleteStudent);
