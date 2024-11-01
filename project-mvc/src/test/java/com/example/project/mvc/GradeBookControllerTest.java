@@ -139,6 +139,34 @@ public class GradeBookControllerTest {
         ModelAndViewAssert.assertViewName(mav, "error");
     }
 
+    @Test
+    public void studentInformationHttpRequest() throws Exception {
+        assertTrue(studentDao.findById(2).isPresent());
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders
+                .get("/studentInformation/{id}", 2))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        ModelAndView mav = mvcResult.getModelAndView();
+        assertNotNull(mav);
+        ModelAndViewAssert.assertViewName(mav, "studentInformation");
+    }
+
+    @Test
+    public void studentInformationDoesNotExistsRequest() throws Exception {
+        assertFalse(studentDao.findById(0).isPresent());
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders
+                        .get("/studentInformation/{id}", 0))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        ModelAndView mav = mvcResult.getModelAndView();
+        assertNotNull(mav);
+        ModelAndViewAssert.assertViewName(mav, "error");
+    }
+
+
+
     @AfterEach
     public void setUpAfterTransaction() {
         jdbc.execute(sqlDeleteStudent);

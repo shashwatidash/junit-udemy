@@ -17,15 +17,15 @@ public class StudentGrades {
 
     public StudentGrades() {}
 
-    public double addGradeResultsForSingleClass(List<Double> grades) {
+    public double addGradeResultsForSingleClass(List<Grade> grades) {
         double result = 0;
-        for (double i : grades) {
-            result += i;
+        for (Grade i : grades) {
+            result += i.getGrade();
         }
         return result;
     }
 
-    public double findGradePointAverage(List<Double> grades ) {
+    public double findGradePointAverage(List<Grade> grades ) {
         int lengthOfGrades = grades.size();
         double sum = addGradeResultsForSingleClass(grades);
         double result = sum / lengthOfGrades;
