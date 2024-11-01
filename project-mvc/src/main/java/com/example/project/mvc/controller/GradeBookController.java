@@ -2,7 +2,6 @@ package com.example.project.mvc.controller;
 
 import com.example.project.mvc.models.CollegeStudent;
 import com.example.project.mvc.models.GradeBook;
-import com.example.project.mvc.models.GradeBookCollegeStudent;
 import com.example.project.mvc.service.StudentAndGradeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
