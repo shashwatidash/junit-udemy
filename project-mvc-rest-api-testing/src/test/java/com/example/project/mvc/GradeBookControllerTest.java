@@ -222,7 +222,18 @@ public class GradeBookControllerTest {
                 .andExpect(jsonPath("$.message", is("Student Or Grade was not found -")));
     }
 
-
+    @Test
+    public void createGradeHttpRequestInvalidGradeType() throws Exception {
+        this.mockMvc.perform(post("/grades")
+                        .contentType(APPLICATION_JSON_UTF8)
+                        .param("grade", "85.00")
+                        .param("gradeType", "literature")
+                        .param("studentId", "2"))
+                .andExpect(status().is4xxClientError())
+                .andExpect(jsonPath("$.status", is(400)))
+                .andExpect(jsonPath("$.message", is("Student Or Grade was not found -")));
+    }
+    
     @AfterEach
     public void setUpAfterTransaction() {
         jdbc.execute(sqlDeleteStudent);
